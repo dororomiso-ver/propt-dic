@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>프롬프트 스타일 사전 실무 150선</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F5F6F8; --panel:#FFFFFF; --ink:#16161A; --sub:#5C616E; --line:#E1E4EA; --soft:#F0F2F5;
+  --acc:#E8442E; --acc2:#2D6CDF; --chipbg:#FFF1EE; --code:#1B1D24; --codetx:#E6E8EE;
+}
+*,*::before,*::after{box-sizing:inherit}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101116;--panel:#181A21;--ink:#F2F3F6;--sub:#A0A6B4;--line:#2A2D36;--soft:#20232B;--chipbg:#2A2029;--acc2:#7FB0FF;--code:#0C0D11;--codetx:#E6E8EE}}
+:root[data-theme="dark"]{--bg:#101116;--panel:#181A21;--ink:#F2F3F6;--sub:#A0A6B4;--line:#2A2D36;--soft:#20232B;--chipbg:#2A2029;--acc2:#7FB0FF;--code:#0C0D11;--codetx:#E6E8EE}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px 64px}
+header h1{font-size:clamp(20px,3.4vw,30px);margin:6px 0 4px;letter-spacing:-.4px}
+header p{margin:0;color:var(--sub);font-size:14px}
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1.6px;color:var(--acc);font-weight:600}
+.topbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;font-size:13px}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+button.ghost{background:transparent}
+.out{position:sticky;top:0;z-index:5;margin:14px 0 18px;background:var(--code);border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.out .label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:1.4px;color:#8C93A6;margin-bottom:8px}
+#prompt{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--codetx);white-space:pre-wrap;word-break:break-word;min-height:44px}
+#prompt .seg{border-radius:4px;padding:1px 2px}
+.outbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.count{color:#8C93A6;font-size:12px;font-family:"IBM Plex Mono",monospace;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.slot{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;display:flex;flex-direction:column}
+.slot h2{margin:0;font-size:15px;display:flex;align-items:center;gap:8px}
+.no{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:#fff;background:var(--ink);border-radius:6px;padding:2px 6px}
+.slot .desc{color:var(--sub);font-size:12px;margin:4px 0 8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:4px}
+.chip{background:var(--chipbg);border:1px solid var(--acc);color:var(--acc);border-radius:999px;padding:3px 9px;font-size:12px;display:inline-flex;gap:6px;align-items:center;cursor:pointer;font-family:"IBM Plex Mono",monospace}
+.chip b{font-weight:600}
+.chip span{opacity:.6}
+.search{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--ink);font-size:13px;margin-bottom:8px}
+.groups{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.gtab{font-size:11.5px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--sub)}
+.gtab.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:600}
+.list{max-height:240px;overflow-y:auto;border-top:1px solid var(--line);padding-top:6px}
+.item{display:flex;justify-content:space-between;gap:10px;padding:5px 6px;border-radius:7px;cursor:pointer;font-size:12.5px}
+.item:hover{background:var(--soft)}
+.item.on{background:var(--chipbg);outline:1px solid var(--acc)}
+.item.on .en{color:var(--ink);font-weight:600}
+.item .en{font-family:"IBM Plex Mono",monospace;color:var(--acc2)}
+.item .ko{color:var(--sub);font-size:11.5px;white-space:nowrap;align-self:flex-start}
+.item .use{color:var(--sub);font-size:10.8px;margin-top:1px;opacity:.85}
+.gnote{font-size:11px;color:var(--sub);margin:-2px 0 6px;line-height:1.45}
+.hint{color:var(--sub);font-size:11.5px;margin-top:6px}
+.note{margin-top:26px;color:var(--sub);font-size:12.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:14px}
+.note b{color:var(--ink)}
+.lbl{font-size:12px;color:var(--sub);font-weight:600}
+.seg-group{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.segb{border:none;border-radius:0;background:transparent;padding:7px 11px;font-size:12.5px;color:var(--sub)}
+.segb.on{background:var(--ink);color:var(--bg);font-weight:700}
+.hex{width:86px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.chk{font-size:12px;color:var(--sub);display:inline-flex;gap:5px;align-items:center}
+#pv{position:fixed;z-index:50;display:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 34px rgba(0,0,0,.28);pointer-events:none}
+#pv img{display:block;width:220px;height:220px;object-fit:cover;border-radius:8px;background:var(--soft)}
+#pv .cap{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--sub);padding:5px 4px 2px;max-width:220px;word-break:break-all}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+@media (max-width:640px){.list{max-height:190px}.out{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">PROMPT DIAL DIC</div>
+    <h1>프롬프트 스타일 사전</h1>
+    <p>실무에서 실제로 발주되는 스타일 150개를 기준으로 제작. 칸마다 용어를 고르면 프롬프트가 만들어지고, 스타일은 하나만 고르자.</p>
+    <div class="topbar">
+      <button class="primary" id="copy">프롬프트 복사</button>
+      <button id="rand">무작위로 채우기</button>
+      <button id="clear">모두 지우기</button>
+      <button id="ko" class="ghost">한국어 뜻 숨기기</button>
+      <button id="theme" class="ghost">다크모드 on/off</button>
+    </div>
+    <div class="topbar" style="margin-top:8px">
+      <span class="lbl">문법</span>
+      <div class="seg-group" id="syntax">
+        <button class="segb on" data-s="plain">문장형</button>
+        <button class="segb" data-s="mj">미드저니</button>
+        <button class="segb" data-s="json">구조형(JSON)</button>
+      </div>
+      <span class="lbl" style="margin-left:10px">브랜드 색</span>
+      <input class="hex" id="hex1" placeholder="#E8442E" maxlength="7">
+      <input class="hex" id="hex2" placeholder="#16161A" maxlength="7">
+      <input class="hex" id="hex3" placeholder="#F5F0E6" maxlength="7">
+      <label class="chk"><input type="checkbox" id="hexOn"> 색 칸 대신 이 코드 쓰기</label>
+    </div>
+    <div class="topbar" style="margin-top:8px">
+      <span class="lbl">샘플 이미지</span>
+      <input class="hex" id="imgBase" style="width:250px" value="images/" placeholder="images/  또는  https://내주소/samples/">
+      <label class="chk"><input type="checkbox" id="imgOn" checked> 용어에 마우스를 올리면 미리보기</label>
+      <span style="font-size:11.5px;color:var(--sub)">기본값 images/ · 파일명은 스타일-슬러그(.jpg .png) 예: risograph-print.jpg</span>
+    </div>
+  </header>
+
+  <div class="topbar" style="margin-top:12px">
+    <span class="lbl">자주 쓰는 조합</span>
+    <span id="presets" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
+  </div>
+
+  <div class="out">
+    <div class="label">PROMPT · 복사해서 도구에 붙여 넣는다</div>
+    <div id="prompt"></div>
+    <div class="outbar">
+      <button id="copy2" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">복사</button>
+      <button id="save" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">이 조합 저장</button>
+      <button id="load" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">저장한 조합</button>
+      <button id="csv" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">CSV로 내보내기</button>
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="note">
+    <p><b>쓰는법</b> · 아홉 칸을 다 채울 필요는 없다. 주제 + 2~4칸이면 충분하고, 앞에 쓴 칸일수록 강하게 반영된다. 스타일을 둘 이상 고르면 결과가 평균값으로 뭉개진다.</p>
+    <p><b>색코드</b> · 브랜드 작업이라면 색 칸에서 고른 뒤 프롬프트의 색 부분을 <code>palette exactly #E8442E and #16161A</code> 처럼 직접 고쳐 쓴다.</p>
+    <p><b>주의점</b> · 같은 용어도 모델과 버전에 따라 반영 정도가 다르다. 한 칸씩만 바꿔 가며 비교하는 것이 가장 빠른 학습법이다.</p>
+        <p style="margin-bottom:0">『스타일 사전 실무 150선』 <span id="total"></span>개 · 2026.9 기준</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div id="pv"><img alt=""><div class="cap"></div></div>
+
+<script>
+const DATA = {"slots":[{"name":"주제","desc":"누가 · 무엇이","count":50,"groups":[{"name":"인물","terms":[["a teenager / in her 30s / an elderly man","나이·세대"],["a barista / a welder / a nurse","역할·직업"],["tall and slender / broad-shouldered","체형·특징"],["short bob / curly hair / gray beard","머리·수염"],["wearing a linen apron / oversized coat","옷"],["smiling softly / tired / focused","표정·감정"],["pouring coffee / tying shoelaces","행동"],["looking into the camera / looking away","시선"],["no real person's name, no celebrity","금지"],["a young barista","젊은 바리스타"],["an elderly craftsman","노년 장인"],["a student with a backpack","가방 멘 학생"],["a delivery rider","배달 라이더"],["a chef in a white coat","요리사"],["a designer at a desk","책상의 디자이너"],["a farmer in a field","농부"],["a nurse on a night shift","야간 근무 간호사"],["two friends","친구 둘"],["a family of four","네 식구"],["a child running","달리는 아이"],["a musician with a guitar","기타 든 음악가"]]},{"name":"사물","terms":[["ceramic / brushed steel / linen / glass","재질"],["worn / brand new / cracked / dusty","상태"],["tiny / life-size / giant","규모"],["a single / a pile of / a row of","수량"],["a narrow alley / a warehouse / a classroom","공간 유형"],["empty / crowded / under construction","공간 상태"],["growth → a sprout in concrete","추상 → 사물"],["connection → two hands passing a cup","추상 → 상황"],["a fictional brand called Noeul","가상 브랜드"],["a ceramic mug","도자기 잔"],["a paper coffee bag","종이 원두 봉투"],["a worn leather notebook","낡은 가죽 노트"],["a bicycle","자전거"],["a film camera","필름 카메라"],["a bowl of noodles","국수 한 그릇"],["a potted plant","화분"],["a stack of books","책 더미"],["a glass bottle","유리병"],["a pair of sneakers","운동화"],["a wooden chair","나무 의자"],["a smartphone","스마트폰"]]},{"name":"추상","terms":[["a sprout breaking through concrete","콘크리트 뚫는 새싹"],["two hands passing a cup","잔을 건네는 두 손"],["an open door with light","빛이 드는 열린 문"],["a paper boat on water","물 위 종이배"],["a winding road","굽은 길"],["a single lit window at night","밤의 불 켜진 창"],["scattered puzzle pieces","흩어진 퍼즐"],["a bridge in fog","안개 속 다리"]]}]},{"name":"장면","desc":"어디서 · 언제 · 무엇을 하는 중","count":62,"groups":[{"name":"상황 지정","terms":[["in a narrow alley in Seoul / on a rooftop","어디서 · 장소"],["at dawn / late at night / noon","언제 · 시간대"],["after the rain / snowing / foggy","날씨"],["early spring / autumn leaves / winter","계절"],["laughing while running / reading quietly","무엇을 하는 중 · 행동"],["joyful / tired / contemplative","감정 · 표정"],["1980s Seoul / futuristic / medieval","시대 · 배경"],["a family of four / alone / crowd","관계 · 인원"]]},{"name":"실내 장소","terms":[["a small ceramic studio, shelves of pots","작업실"],["a neighborhood cafe, wooden counter","카페"],["a home kitchen, tiled backsplash","주방"],["a modern open-plan office","사무실"],["a university classroom, whiteboard","교실·강의실"],["a library with tall wooden shelves","도서관·서점"],["a corner shop with hand-written signs","작은 가게"],["a white-cube gallery, spotlights","전시장"],["a cozy living room, low sofa","집·거실"]]},{"name":"실외 · 자연","terms":[["a narrow alley with old brick walls","골목"],["a busy traditional market, canopies","시장"],["a crosswalk, city street","횡단보도·거리"],["a city park with old trees","공원"],["a rooftop overlooking the city","옥상"],["a quiet pier / rocky coastline","해안·바다"],["misty mountain ridges / pine forest","산·숲"],["an open field of tall grass","들판"],["the facade of a brick building","건축 외관"]]},{"name":"시간 · 날씨 · 계절","terms":[["at dawn, first light, cool blue","새벽"],["morning light, long soft shadows","아침"],["at noon, harsh overhead sun","한낮"],["golden hour, warm low sun","해질녘"],["blue hour / at night, city lights","블루 아워·밤"],["after the rain, wet reflective ground","비·젖음"],["snowing, fresh snow on the ground","눈·서리"],["foggy, low visibility, haze","안개·황사"],["cherry blossoms / autumn leaves / bare winter trees","계절"]]},{"name":"행동 · 관계 · 시대","terms":[["hands kneading dough / wrapping a gift","손의 행동"],["walking briskly / running / jumping","움직임"],["sitting quietly / leaning on a railing","정지·머묾"],["two friends sharing a meal","함께"],["repairing a bicycle / taking notes","일하는 중"],["alone / a family of four / a crowd","관계·인원"],["1970s / 1990s / near future","시대"],["Korean / Nordic / Mediterranean","문화 맥락"],["a small opening party / a local festival","이벤트"]]},{"name":"소품","terms":[["worn tools, clay-stained apron, sketchbook","작업 도구"],["ceramic bowls, a kettle, wooden spoons","식기·주방"],["letters, stamps, notebooks, paper clips","종이·문구"],["a potted plant, dried flowers, fallen leaves","식물"],["linen cloth, knitted blanket, canvas apron","직물"],["an old radio, a film camera, a laptop","기술 물건"],["candles, paper lanterns, string lights","빛 소품"],["an old bicycle, a delivery scooter","탈것"],["a cat sleeping / a dog waiting by the door","동물"]]},{"name":"배경","terms":[["plain cream paper background, subtle grain","단색 · 종이"],["soft gradient background, two colors","그라디언트"],["textured concrete wall / stucco wall","질감 벽"],["linen fabric backdrop, natural folds","직물 배경"],["shadow of window blinds on a wall","빛과 그림자"],["blurred bokeh lights, out of focus","보케 배경"],["abstract organic shapes at the edges","추상 도형"],["subtle repeating pattern, low contrast","패턴 배경"],["seamless studio backdrop, soft falloff","스튜디오 무지"]]}]},{"name":"스타일","desc":"150개 선별","count":150,"groups":[{"name":"이미지컷","note":"광고, 커머스, 매거진에서 가장 많이 발주되는 컷 위주. 렌즈나 각도가 들어간 '기본 세팅' 네 가지는 그대로 복사.","terms":[["medium close-up, eye level, 85mm, shallow depth of field","인물 기본 세팅","프로필 · 인터뷰 · 모델 컷의 출발점"],["close-up, 45-degree angle, 100mm macro, deep focus","제품 기본 세팅","화장품 · 전자기기 상세컷"],["overhead top-down, 50mm, slight shallow focus","음식 기본 세팅","배달앱 · 메뉴판 · 레시피 콘텐츠"],["product photography, studio","스튜디오 제품 사진","카탈로그 · 상세페이지 본컷"],["hero product shot","히어로 컷","캠페인 키비주얼 · 랜딩 첫 화면"],["ecommerce white background","이커머스 누끼컷","오픈마켓 대표 이미지, 합성 전 소스"],["seamless backdrop, studio gradient","그라디언트 배경지","제품 · 인물 단색 배경, 배너 합성용"],["rim lit product","림라이트 제품","주류 · 향수 · 테크 제품의 윤곽 강조"],["flat lay styling","플랫레이","SNS 피드 · 키트 구성품 소개"],["knolling photography","놀링","구성품 · 도구 세트를 정렬해 보여 줄 때"],["food photography","음식 사진","F&B 메뉴 · 프랜차이즈 홍보물"],["beverage photography","음료 사진","카페 신메뉴 · 주류 광고"],["splash photography","스플래시","음료 · 과일 · 화장품 텍스처 컷"],["beauty photography","뷰티 사진","화장품 모델컷 · 피부 클로즈업"],["fashion editorial","패션 화보","브랜드 시즌 캠페인 · 잡지 화보"],["lookbook photo","룩북","의류 시즌 룩북 · 상세페이지 착용컷"],["editorial photography","에디토리얼 사진","매거진 · 브랜드 저널 기사 이미지"],["editorial lifestyle","라이프스타일 화보","리빙 · 가전 · 식품 브랜드의 사용 장면"],["environmental portrait","환경 인물","인터뷰 · 창업자 · 직원 소개 콘텐츠"],["studio portrait","스튜디오 인물","프로필 · 포스터 인물컷"],["golden hour portrait","골든아워 인물","감성 캠페인 · 여행 · 웨딩"],["backlit portrait","역광 인물","따뜻하고 부드러운 무드의 인물컷"],["color gel portrait","컬러 젤 인물","음악 · 공연 · 게임 포스터"],["interior photography","인테리어 사진","공간 브랜딩 · 숙박 · 카페 홍보"],["architectural photography, straight lines","건축 사진","분양 · 공공건축 · 사옥 소개"],["documentary photography","다큐 · 르포","공익 캠페인 · 기업 ESG 리포트"],["35mm film photo, film grain","35mm 필름","뉴트로 · 스트리트 브랜드 무드"],["hard flash snapshot","직광 플래시 스냅","스트리트 패션 · Y2K 무드 화보"],["black and white photography","흑백 사진","럭셔리 · 전시 · 인물 포스터"],["macro photography","매크로","텍스처 · 성분 · 디테일 컷"]]},{"name":"회화·드로잉","note":"일러스트레이터에게 실제로 발주하는 매체 위주. 미술사 기법명(스푸마토 · 그리자유 등)은 결과 차이가 크지 않아 제외.","terms":[["watercolor painting","수채화","그림책 · 초대장 · 감성 패키지"],["ink line with watercolor","잉크 선 + 수채","여행 · 지도 · 레시피 일러스트"],["gouache illustration","과슈 일러스트","출판 표지 · 에디토리얼"],["flat gouache shapes","면 과슈","포스터 · 굿즈 · 브랜드 일러스트"],["oil painting","유화","클래식 · 고급 무드 비주얼, 공연 포스터"],["impasto","임파스토(두꺼운 붓질)","질감이 도드라지는 키비주얼"],["airbrush illustration, soft gradients","에어브러시","레트로 광고 · Y2K · 뷰티 일러스트"],["pencil sketch, graphite","연필 스케치","아이디어 스케치 · 드로잉 무드"],["charcoal drawing","목탄 드로잉","영화 · 공연 포스터, 강한 명암"],["pen and ink, cross-hatching","펜 · 잉크 선화","에디토리얼 · 빈티지 라벨 · 책 삽화"],["colored pencil","색연필","아동 · 교육 콘텐츠, 따뜻한 손그림"],["marker rendering","마커 렌더링","제품 · 산업 디자인 아이디어 스케치"],["urban sketching","어반 스케치","지역 관광 · 공간 소개 · 굿즈"],["storyboard sketch","스토리보드 스케치","광고 · 영상 콘티"],["botanical illustration","식물 세밀화","화장품 · 차 · 건강식품 패키지"],["ink wash painting, sumi-e","수묵","전통주 · 한식 · 문화 행사 비주얼"],["ink wash with light color, lots of empty space","수묵담채","한국적 브랜딩, 여백 많은 포스터"],["Korean folk painting style, flat bold colors","민화풍","K-굿즈 · 관광 기념품 · 명절 패키지"],["calligraphic brush stroke, dry brush","캘리그라피 붓질","제품명 로고 · 영화 · 드라마 타이틀"]]},{"name":"일러스트·그래픽","note":"브랜드, 앱, 에디토리얼, 캐릭터 실무에 바로 활용 가능.","terms":[["flat vector illustration","플랫 벡터","앱 · 웹 · 서비스 소개 일러스트"],["corporate memphis","기업형 일러스트","IT · 스타트업 랜딩페이지"],["icon set, line icon","아이콘 세트","앱 UI · 인포그래픽 · 사인"],["isometric illustration","아이소메트릭","서비스 구조도 · 테크 · 물류 설명"],["minimal line art, single line","라인 아트","로고 모티프 · 뷰티 · 카페 브랜딩"],["grain texture illustration","노이즈 질감 일러스트","요즘 브랜드 · 앱 일러스트의 기본 마감"],["gradient illustration, soft blends","그라디언트 일러스트","핀테크 · 테크 키비주얼"],["editorial illustration, conceptual metaphor","에디토리얼 일러스트","기사 · 칼럼 · 리포트 표지"],["spot illustration","스팟 일러스트","본문 사이 작은 삽화, 빈 화면 안내"],["infographic style","인포그래픽","연차보고서 · 카드뉴스 · 교육 자료"],["technical illustration, cutaway diagram","기술 · 단면 일러스트","제품 구조 설명 · 매뉴얼"],["children's book illustration","그림책 일러스트","아동 출판 · 교육 브랜드"],["comic book style, halftone, bold outlines","코믹","이벤트 배너 · 팝 무드 광고"],["cel-shaded anime style","셀 셰이딩 애니","게임 · 웹툰 · 서브컬처 콜라보"],["traditional cel animation look, hand-painted background","셀 애니메이션 풍","감성 광고 · 뮤직비디오 배경"],["cute kawaii style","카와이","캐릭터 굿즈 · 문구 · 이모티콘"],["character sheet, three views, turnaround","캐릭터 시트(3면도)","캐릭터 개발 · 3D 모델링 전달용"],["mascot design, simple and friendly","마스코트","지자체 · 기업 · 스포츠 구단 캐릭터"],["sticker design, die-cut, white border","스티커","굿즈 · 이모티콘 · 패키지 씰"],["badge and emblem","뱃지 · 엠블럼","로고 초안 · 팀 · 클럽 · 캠핑 브랜드"],["vintage label art","빈티지 라벨","커피 · 수제맥주 · 식품 패키지"],["illustrated map, pictorial map","일러스트 지도","관광 지도 · 축제 안내 · 캠퍼스 맵"],["hand lettering","핸드 레터링","타이틀 · 패키지 문구 · 카페 메뉴"],["seamless repeat pattern","반복 패턴","포장지 · 패브릭 · 브랜드 배경"],["pixel art 16-bit","픽셀 아트","게임 · 레트로 이벤트 · 굿즈"]]},{"name":"판화·인쇄·공예","note":"후가공 및 인쇄 사양을 AI 시안에서 미리 보여 줄 때 활용. 출력소 작업 시 필요 용어까지 첨부.","terms":[["risograph print","리소그래프","독립 출판 · 전시 · 굿즈 포스터"],["misregistration","인쇄 어긋남","리소 · 실크 느낌을 살릴 때 추가"],["halftone print, dot pattern","하프톤","팝아트 · 레트로 포스터 · 티셔츠"],["screen print","실크스크린","공연 포스터 · 굿즈 · 의류"],["spot color print","별색 인쇄","2~3도 브랜드 컬러 인쇄물"],["duotone print","듀오톤 인쇄","포스터 · 표지 · 브로슈어 사진"],["letterpress","활판 인쇄","명함 · 청첩장 · 프리미엄 카드"],["hot foil gold","금박","화장품 · 명절 선물 · 초대장"],["emboss and deboss","형압(양각 · 음각)","명함 · 패키지 로고 후가공"],["spot varnish","부분 코팅","패키지 · 표지 로고 강조"],["uncoated stock","비코팅지","친환경 · 내추럴 브랜드 인쇄물"],["white ink on kraft","크라프트지 흰 잉크","친환경 · 베이커리 · 수공예 패키지"],["fluorescent ink","형광 잉크","리소 · 스트리트 · 페스티벌 인쇄물"],["photocopy zine, xerox texture","복사기 질감","펑크 · 인디 공연 포스터 · 진"],["linocut, woodblock print","리노컷 · 목판","전통 · 수공예 · 크래프트 브랜드"],["cyanotype","사이아노타입","아트 포스터 · 식물 모티프 굿즈"],["paper collage, cut-out","종이 콜라주","에디토리얼 · 캠페인 · 앨범 커버"],["paper craft, layered paper","종이 공예(레이어드 페이퍼)","아동 · 교육 · 시즌 디스플레이"],["embroidery, stitched fabric","자수","패션 굿즈 · 패치 · 수공예 브랜드"]]},{"name":"3D·디지털·모션","note":"제품 렌더, 3D 아이콘, 키비주얼에서 실제로 쓰는 재질, 스타일(셰이더 및 시뮬레이션 전문용어는 이미지 AI에서 효과가 작아 제외)","terms":[["3D render, octane-style","3D 렌더","3D 키비주얼 전반의 기본값"],["product render, studio HDRI lighting","제품 렌더","출시 전 제품 시안 · 상세페이지"],["exploded product view, 3D","3D 분해도","전자기기 · 가구 구조 설명"],["soft studio 3D","소프트 스튜디오 3D","앱 · 핀테크 3D 일러스트"],["clay render, claymation style","클레이 렌더","친근한 캐릭터 · 교육 · 광고"],["inflated 3D, puffy balloon style","인플레이트 3D","Y2K · 팝업 · 이벤트 타이포"],["UI 3D icon","3D 아이콘","앱 · 웹 서비스 아이콘 세트"],["isometric 3D room","아이소메트릭 3D 방","서비스 소개 · 공간 콘셉트"],["miniature diorama","미니어처 디오라마","도시 · 매장 · 브랜드 세계관 시각화"],["low poly 3D","로우폴리","게임 · 테크 · 데이터 그래픽"],["toon-shaded 3D, outlines","툰 셰이딩 3D","게임 · 애니 콜라보 · 캐릭터"],["abstract 3D shapes","추상 3D 오브젝트","브랜드 그래픽 요소 · 배경"],["glossy plastic","유광 플라스틱","장난감 · 생활용품 · 팝 무드"],["matte plastic","무광 플라스틱","가전 · 테크 제품의 차분한 렌더"],["chrome material","크롬","Y2K · 음악 · 패션 타이포"],["gold material","금 재질","럭셔리 · 시상 · 명절 비주얼"],["frosted glass","반투명 유리","뷰티 · 테크 제품 렌더"],["glassmorphism","글래스모피즘","앱 UI · 대시보드 · 웹 배경"],["holographic, iridescent","홀로그래픽","뷰티 · 음악 · 패션 키비주얼"],["jelly material, translucent soft body","젤리 재질","화장품 텍스처 · 캔디 · 캐릭터"],["marble material","대리석","럭셔리 화장품 · 인테리어 배경"],["liquid splash 3D","3D 액체 스플래시","음료 · 화장품 광고"],["mesh gradient","메시 그라디언트","웹 · 앱 배경, 브랜드 컬러 표현"]]},{"name":"사조·시대·지역","note":"브랜드 컨셉 회의에서의 무드 관련 키워드. 특정 미술사 사조(코브라 등)와 특정 문화 문양은 제외.","terms":[["Bauhaus","바우하우스","기하 도형 포스터 · 교육 · 문화 브랜드"],["Swiss style, International Typographic Style","스위스 스타일","그리드 중심 포스터 · 기업 편집물"],["Russian Constructivism, diagonal, red and black","구성주의","강한 메시지 포스터 · 캠페인"],["Art Nouveau","아르누보","화장품 · 티 · 와인 라벨"],["Art Deco","아르데코","호텔 · 주류 · 고급 초대장"],["mid-century modern, 1950s, muted palette","미드센추리 모던","가구 · 인테리어 · 레트로 브랜드"],["Memphis design","멤피스","팝 이벤트 · 청소년 브랜드"],["pop art","팝아트","세일 · 이벤트 · 굿즈"],["psychedelic 1960s poster, swirling type","사이키델릭","음악 페스티벌 · 공연 포스터"],["80s synthwave, retrowave","신스웨이브","게임 · 음악 · 나이트 이벤트"],["Y2K aesthetic","Y2K","패션 · 뷰티 · 10~20대 타깃 캠페인"],["Cyberpunk","사이버펑크","게임 · 테크 · 네온 야간 비주얼"],["Scandinavian design","북유럽 디자인","리빙 · 가구 · 생활용품"],["minimalism","미니멀리즘","테크 · 뷰티 · 프리미엄 브랜드 전반"],["brutalism","브루탈리즘","패션 · 아트 · 전시 웹사이트"],["1980s Korean retro signage style","뉴트로(한국 80년대)","로컬 F&B · 편의점 협업 · 굿즈"]]},{"name":"질감·마감·분위기","note":"최종 스타일 뒤에 덧붙이는 '조미료' 개념으로 사용. 사진 톤 보정과 제품 컷 조명에서 많이 쓰이는 말.","terms":[["film grain","필름 입자","사진 및 일러스트에 아날로그 느낌 추가"],["noise gradient","노이즈 그라디언트","웹 · 앱 배경, 포스터 배경"],["paper texture","종이 질감","일러스트 · 포스터에 인쇄물 느낌"],["bokeh","보케","인물 · 제품 배경 흐림"],["high key","하이키","뷰티 · 유아 · 헬스케어의 밝은 톤"],["low key","로우키","주류 · 향수 · 럭셔리의 어두운 톤"],["lifted blacks","암부 들림(물 빠진 검정)","필름 · 감성 톤 보정"],["hard shadows from window blinds","블라인드 그림자","화장품 · 음료 제품 컷"],["caustic light from water, rippling","물 반사광(커스틱)","여름 음료 · 수분 화장품"],["wet surface","젖은 표면","음료 · 차량 · 야간 도시 컷"]]},{"name":"매체·표면·출력물","note":"주로 시안을 목업에 얹어 클라이언트에게 보여 줄 때 사용.","terms":[["poster on wall mockup","벽 포스터 목업","포스터 · 캠페인 시안 제시"],["billboard mockup on a city street","옥외 빌보드 목업","옥외 광고 시안"],["phone screen mockup, held in hand","휴대폰 화면 목업","앱 · SNS 콘텐츠 시안"],["social feed post","SNS 피드 게시물","인스타그램 · 카드뉴스 시안"],["magazine spread mockup, two pages","잡지 펼침면 목업","편집 · 광고 지면 시안"],["business card stack","명함 목업","BI · CI 제안서 기본 구성"],["screen print on a tote bag / t-shirt mockup","토트백 · 티셔츠 목업","굿즈 · 머천다이즈 시안"],["bottle label","병 라벨 목업","음료 · 주류 · 화장품 패키지 시안"]]}]},{"name":"카메라","desc":"샷 · 앵글 · 렌즈","count":44,"groups":[{"name":"샷 크기","terms":[["extreme close-up, macro detail","익스트림 클로즈업"],["close-up, headshot","클로즈업"],["medium close-up, bust shot","미디엄 클로즈업"],["medium shot, waist-up","미디엄 샷"],["cowboy shot, mid-thigh","카우보이 샷"],["full body shot","풀 샷"],["wide shot","와이드"],["extreme wide shot, establishing shot","익스트림 와이드"]]},{"name":"앵글 · 시점","terms":[["eye-level shot, straight-on","아이 레벨"],["high angle shot","하이 앵글"],["low angle shot, looking up","로우 앵글"],["overhead shot, top-down, bird's-eye view","탑뷰 · 부감"],["worm's-eye view","웜즈아이"],["aerial view, drone shot","드론 · 항공"],["dutch angle, tilted frame","더치 앵글"],["over-the-shoulder shot","어깨 너머"],["POV shot, first-person view","1인칭"]]},{"name":"렌즈 · 초점 · 셔터","terms":[["wide-angle lens, 16mm","초광각"],["85mm portrait lens","인물 렌즈"],["telephoto lens, 200mm, compressed","망원"],["macro lens, extreme detail","매크로"],["fisheye lens / tilt-shift, miniature effect","어안 · 틸트시프트"],["shallow depth of field, bokeh, f/1.8","얕은 심도"],["deep focus, everything sharp, f/11","깊은 심도"],["long exposure / motion blur / frozen motion","장노출 · 모션"],["warm color negative film look, film grain","필름 · 입자"]]},{"name":"움직임 · 순간","terms":[["decisive moment, mid-action","결정적 순간"],["motion blur, panning shot","움직임 흐림"],["frozen motion, high shutter speed","정지"],["long exposure, light trails","장노출"],["double exposure, overlapping images","다중 노출"],["sequence of poses, stop-motion grid","연속 동작"],["handheld, slight camera shake","흔들림"],["shot through a rainy window, reflections","반사·유리 너머"],["framed by a doorway, foreground silhouette","프레임 속 프레임"]]},{"name":"조합","terms":[["medium close-up, eye level, 85mm, shallow depth of field","인물 기본"],["close-up, 45-degree angle, 100mm macro, deep focus","제품 기본"],["overhead top-down, 50mm, slight shallow focus","음식 기본"],["wide shot, eye level, 24mm, one-point perspective","공간 기본"],["extreme wide shot, telephoto compression","풍경 기본"],["medium shot, eye level, 35mm, handheld","스냅 기본"],["low angle, wide-angle 24mm, dramatic","드라마 강조"],["high angle, top-down, flat lay","관찰 · 조망"],["panning shot, motion blur background","움직임"]]}]},{"name":"조명","desc":"빛의 종류와 방향","count":35,"groups":[{"name":"자연광 · 시간대","terms":[["golden hour, warm low sun","골든 아워"],["blue hour, twilight","블루 아워"],["harsh midday sun, hard shadows","한낮 직사광"],["overcast, soft diffused light","흐린 날"],["soft window light from the side","창가 빛"],["volumetric light, god rays, mist","안개 · 빛줄기"],["moonlight, night, cool tones","밤 · 달빛"],["candlelight, firelight, warm glow","촛불 · 모닥불"]]},{"name":"스튜디오 · 인공","terms":[["softbox lighting, soft even light","소프트박스"],["high-key lighting","하이키"],["low-key lighting, dramatic shadows","로우키"],["Rembrandt lighting","렘브란트"],["rim light, backlight","림 라이트"],["silhouette against bright background","실루엣"],["neon lighting, pink and blue","네온"],["ring light, catchlights","링 라이트"],["colored gel lighting, red and teal","컬러 젤"]]},{"name":"빛의 성질","terms":[["soft diffused light, gentle shadow edges","부드러움"],["hard light, sharp-edged shadows","단단함"],["light from the left / from behind / from above","방향"],["warm 3000K / neutral / cool 6500K","색온도"],["high contrast / low contrast lighting","명암비"],["long shadows / short midday shadows","그림자 길이"],["bounced light, soft fill from a wall","반사광"],["dappled light through leaves / window grid shadow","빛 모양"],["visible light source in frame, lens flare","광원 보이기"]]},{"name":"특수 조명","terms":[["strong backlight, subject in silhouette","역광 실루엣"],["hard shadows from window blinds","창살 그림자"],["caustic light from water, rippling","물 반사광"],["volumetric god rays through fog","안개 속 광선"],["two-color gel lighting, red and teal","색 젤 두 개"],["face lit by a phone screen","화면 빛"],["flickering firelight, warm and low","촛불 · 모닥불"],["single streetlight pool of light","가로등"],["flash of lightning, brief hard light","번개·섬광"]]}]},{"name":"색","desc":"팔레트와 보정","count":27,"groups":[{"name":"색 · 보정","terms":[["warm palette, amber, terracotta","따뜻한 팔레트"],["cool palette, teal, icy blue","차가운 팔레트"],["pastel colors, soft","파스텔"],["muted, desaturated, earthy","탁한 톤"],["vibrant, saturated, bold","선명한 톤"],["monochrome / duotone blue and orange","단색 · 듀오톤"],["cinematic color grading, teal and orange","영화 톤"],["black and white with a single red accent","흑백 + 한 색"],["palette exactly #E8442E and #16161A","정확한 색"]]},{"name":"팔레트","terms":[["earthy palette, terracotta, clay, sand","흙빛"],["forest palette, moss, pine, bark","숲"],["coastal palette, seafoam, sand, navy","바다"],["soft pastel palette, blush, mint, cream","파스텔"],["monochrome grayscale with one accent","모노 그레이"],["neon night palette, magenta and cyan","네온 야간"],["vintage print palette, faded red and cream","빈티지 인쇄"],["jewel tones, emerald, sapphire, ruby","보석"],["black and white with gold accents","흑백 + 금색"],["cinematic teal and orange grading","영화 톤"],["Fuji-like green tones / warm negative film","필름 색"],["faded, washed out, lifted blacks","빛바램"],["split toning, cool shadows warm highlights","색 분리"],["sepia / cyanotype / duotone","단색조"],["high contrast black and white, deep blacks","고대비 흑백"],["palette exactly #E8442E, #16161A, #F5F0E6","브랜드 고정"],["limited palette, only three colors","색 수 제한"],["no rainbow colors, no gradients","색 금지"]]}]},{"name":"구도","desc":"배치와 여백","count":34,"groups":[{"name":"구도","terms":[["rule of thirds, subject on the right third","3분할"],["centered composition, symmetrical","중앙 · 대칭"],["negative space, top 40% empty","여백"],["leading lines","유도선"],["frame within a frame","프레임 속 프레임"],["flat lay, top-down arrangement","플랫레이"],["knolling, items arranged at right angles","놀링"],["repeating pattern, seamless","패턴 · 반복"],["tight crop, cropped edges","클로즈 크롭"],["top 40% empty, plain sky","상단 비움"],["left half plain and soft","한쪽 비움"],["subject framing an empty center","중앙 비움"],["diagonal composition, dynamic","대각선 구성"],["triangular arrangement of objects","삼각 구성"],["grid arrangement of identical objects","반복 구성"],["leading lines toward the subject","시선 유도"],["perfectly symmetrical, centered","대칭"],["subject occupies 20% of the frame","여백 비율"]]},{"name":"여백 · 배치","terms":[["rule of thirds","3분할"],["centered composition","중앙 배치"],["symmetrical","대칭"],["asymmetric balance","비대칭 균형"],["top 40% empty","상단 40% 비움"],["left half plain","왼쪽 절반 비움"],["right third for text","오른쪽 3분의 1 여백"],["wide negative space","넓은 여백"],["tight crop","꽉 찬 크롭"],["diagonal composition","대각선 구성"],["triangular arrangement","삼각 구성"],["flat lay","플랫레이"],["knolling","놀링"],["seamless pattern","이음새 없는 패턴"],["subject occupies 20%","주체 20% 크기"],["eye-level horizon on lower third","지평선 하단 3분할"]]}]},{"name":"제약","desc":"빼야 할 것","count":24,"groups":[{"name":"제약","terms":[["no text, no letters, no watermark","글자 없음"],["no logos, no brand names","로고 없음"],["no people / only one person","인원 통제"],["natural hands, correct anatomy","손·왜곡 방지"],["--no text, people","미드저니 제외"],["no text, no letters, no signage","글자 오류 방지"],["natural hands, five fingers, correct anatomy","인물 오류"],["simple, uncluttered, few objects","과한 디테일"],["no watermark, no signature, no frame","워터마크"],["single subject only, no duplicates","중복 요소"]]},{"name":"자주 쓰는 제약","terms":[["no text","글자 없음"],["no letters","문자 없음"],["no logo","로고 없음"],["no watermark","워터마크 없음"],["no people","사람 없음"],["only one subject","주체 하나만"],["no duplicates","중복 없음"],["natural hands, five fingers","자연스러운 손"],["no extra objects","불필요한 사물 없음"],["no gradients","그라디언트 없음"],["no readable signage","읽히는 간판 없음"],["no recognizable faces","식별 가능한 얼굴 없음"],["no brand names","브랜드명 없음"],["uncluttered, simple","단순하게"]]}]},{"name":"출력","desc":"비율과 배경","count":12,"groups":[{"name":"비율 기타","terms":[["3:4 / 2:3 vertical","세로 포스터"],["isolated on white / transparent background","배경 처리"],["isolated on pure white, studio cutout","배경 분리"],["transparent background, PNG cutout","투명 배경"],["print quality, high detail, CMYK-safe colors","인쇄 조건"],["seamless tileable pattern","타일 · 반복"]]},{"name":"배경 · 파일","terms":[["isolated on pure white","흰 배경 누끼"],["transparent background","투명 배경"],["seamless tileable","타일 반복"],["print quality, 300dpi feel","인쇄 품질"],["high detail","고디테일"],["simple flat background","단순 배경"]]}]}],"total":438,"presets":[{"name":"제품 상세","text":"product render, studio HDRI lighting + frosted glass + hard shadows from window blinds"},{"name":"카페 패키지","text":"vintage label art + white ink on kraft"},{"name":"공연 포스터","text":"screen print + misregistration + film grain"},{"name":"앱 온보딩","text":"soft studio 3D + matte plastic"},{"name":"한국적 브랜딩","text":"ink wash with light color, lots of empty space + paper texture"}]};
+const state = DATA.slots.map(() => []);
+const ui = DATA.slots.map(() => ({ q: "", g: 0 }));
+let showKo = true, syntax = "plain";
+const COLORS = ["#16161A","#0E9B72","#7B4DFF","#2D6CDF","#F2811D","#E0475B","#1F8F4A","#6E7180","#8B5A2B"];
+const COLORS_DARK = ["#C9CEDA","#3FD3A6","#B69BFF","#7FB0FF","#FFB066","#FF8A80","#6FD99A","#AEB4C2","#D9A97A"];
+function isDark(){const t=document.documentElement.getAttribute("data-theme");if(t)return t==="dark";return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;}
+const C_=(i)=>(isDark()?COLORS_DARK:COLORS)[i];
+
+const $ = (s, r) => (r || document).querySelector(s);
+const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+
+function buildPrompt() {
+  const parts = [];
+  state.forEach((sel, i) => { sel.forEach(t => parts.push({ slot: i, text: t })); });
+  return parts;
+}
+function render() {
+  const partsArr = parts();
+  const box = $("#prompt"); box.innerHTML = "";
+  if (!partsArr.length) { box.innerHTML = '<span style="color:#6B7080">왼쪽 칸에서 용어를 고르면 여기에 프롬프트가 만들어집니다.</span>'; }
+  else if (syntax === "plain") {
+    partsArr.forEach((p, i) => {
+      const sp = el("span", "seg", p.text + (i < partsArr.length - 1 ? ", " : ""));
+      sp.style.color = ["#FFFFFF","#7FE3C2","#C7B2FF","#9DC2FF","#FFC28A","#FFA8A0","#96E0B4","#C9CEDA","#DCC0A0"][p.slot];
+      box.appendChild(sp);
+    });
+  } else { box.textContent = text(); }
+  $("#count").textContent = partsArr.length + " / 9칸 중 " + state.filter(s => s.length).length + "칸 사용";
+  DATA.slots.forEach((_, i) => renderSlot(i));
+}
+function hexList() {
+  return ["hex1","hex2","hex3"].map(id => ($("#"+id).value||"").trim())
+    .filter(v => /^#?[0-9a-fA-F]{6}$/.test(v)).map(v => v.startsWith("#") ? v : "#"+v);
+}
+function parts() {
+  const ps = buildPrompt();
+  const hx = hexList();
+  if ($("#hexOn").checked && hx.length) {
+    const kept = ps.filter(p => p.slot !== 5);
+    const at = kept.findIndex(p => p.slot > 5);
+    const item = { slot: 5, text: "palette exactly " + hx.join(", ") };
+    if (at < 0) kept.push(item); else kept.splice(at, 0, item);
+    return kept;
+  }
+  return ps;
+}
+const RATIO = /^(\d{1,2}):(\d{1,2})$|^(2\.39):1$/;
+function text() {
+  const ps = parts();
+  if (!ps.length) return "";
+  if (syntax === "mj") {
+    const body = [], no = [], par = [];
+    ps.forEach(p => {
+      const t = p.text;
+      if (p.slot === 8 && RATIO.test(t)) { par.push("--ar " + t.replace(":", ":")); return; }
+      if (p.slot === 7 && /^no /i.test(t)) { no.push(t.replace(/^no\s+/i, "")); return; }
+      body.push(t);
+    });
+    if (no.length) par.push("--no " + no.join(", "));
+    return body.join(", ") + (par.length ? " " + par.join(" ") : "");
+  }
+  if (syntax === "json") {
+    const KEY = ["subject","scene","style","camera","lighting","color","composition","avoid","output"];
+    const o = {};
+    DATA.slots.forEach((s2, i) => {
+      const v = ps.filter(p => p.slot === i).map(p => p.text);
+      if (v.length) o[KEY[i]] = v.length === 1 ? v[0] : v;
+    });
+    return JSON.stringify(o, null, 2);
+  }
+  return ps.map(p => p.text).join(", ");
+}
+
+function renderSlot(i) {
+  const slot = DATA.slots[i], host = $("#slot" + i);
+  const chips = $(".chips", host); chips.innerHTML = "";
+  state[i].forEach(t => {
+    const c = el("span", "chip"); const cc = C_(i); c.style.borderColor = cc; c.style.color = cc; c.style.background = "transparent";
+    const b = el("b", null, t); c.appendChild(b); c.appendChild(el("span", null, "✕"));
+    c.onclick = () => { state[i] = state[i].filter(x => x !== t); render(); };
+    chips.appendChild(c);
+  });
+  const tabs = $(".groups", host); tabs.innerHTML = "";
+  slot.groups.forEach((g, gi) => {
+    const b = el("button", "gtab" + (ui[i].g === gi ? " on" : ""), g.name + " " + g.terms.length);
+    b.onclick = () => { ui[i].g = gi; render(); };
+    tabs.appendChild(b);
+  });
+  const gn = $(".gnote", host);
+  const gobj = slot.groups[ui[i].g];
+  gn.textContent = (!ui[i].q && gobj && gobj.note) ? gobj.note : "";
+  const list = $(".list", host); list.innerHTML = "";
+  const q = ui[i].q.trim().toLowerCase();
+  let terms = q ? slot.groups.flatMap(g => g.terms) : slot.groups[ui[i].g].terms;
+  if (q) terms = terms.filter(t => (t[0] + " " + t[1]).toLowerCase().includes(q));
+  terms.slice(0, 400).forEach(t => {
+    const on = state[i].includes(t[0]);
+    const it = el("div", "item" + (on ? " on" : ""));
+    const left = el("div"); left.style.cssText = "min-width:0";
+    left.appendChild(el("div", "en", t[0]));
+    if (t[2]) { const u = el("div", "use", t[2]); left.appendChild(u); }
+    it.appendChild(left);
+    if (showKo) it.appendChild(el("span", "ko", t[1]));
+    it.onmouseenter = (e) => showPreview(e, t[0]);
+    it.onmousemove = movePreview;
+    it.onmouseleave = hidePreview;
+    it.onclick = () => {
+      if (on) state[i] = state[i].filter(x => x !== t[0]);
+      else state[i] = i === 2 ? [t[0]] : state[i].concat([t[0]]);
+      render();
+    };
+    list.appendChild(it);
+  });
+  if (!terms.length) list.appendChild(el("div", "hint", "검색 결과가 없습니다."));
+}
+
+function build() {
+  const grid = $("#grid");
+  DATA.slots.forEach((slot, i) => {
+    const card = el("div", "slot"); card.id = "slot" + i;
+    const h = el("h2");
+    const no = el("span", "no", String(i + 1).padStart(2, "0")); no.style.background = C_(i); no.style.color = isDark() ? "#101116" : "#FFFFFF";
+    h.appendChild(no); h.appendChild(el("span", null, slot.name));
+    const cnt = el("span", null, slot.count + "개"); cnt.style.cssText = "margin-left:auto;font-size:11.5px;color:var(--sub);font-family:'IBM Plex Mono',monospace";
+    h.appendChild(cnt); card.appendChild(h);
+    card.appendChild(el("div", "desc", slot.desc + (i === 2 ? " · 하나만 선택 가능" : "")));
+    card.appendChild(el("div", "chips"));
+    const s = el("input", "search"); s.placeholder = slot.name + " 검색 (한글 · 영문)";
+    s.oninput = (e) => { ui[i].q = e.target.value; render(); };
+    card.appendChild(s);
+    card.appendChild(el("div", "groups"));
+    card.appendChild(el("div", "gnote"));
+    card.appendChild(el("div", "list"));
+    grid.appendChild(card);
+  });
+  $("#total").textContent = DATA.total.toLocaleString();
+}
+
+const slugify=(v)=>v.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+function imgBase(){const v=(($("#imgBase").value||"").trim())||"images/";return v.endsWith("/")?v:v+"/";}
+function showPreview(e,term){
+  if(!$("#imgOn").checked)return; const base=imgBase();
+  const pv=$("#pv"),img=$("#pv img");
+  $("#pv .cap").textContent=term;
+  const exts=[".jpg",".png",".jpeg",".webp"]; let k=0;
+  const tryNext=()=>{ if(k>=exts.length){ pv.style.display="none"; return; } img.src=base+slugify(term)+exts[k++]; };
+  img.onerror=tryNext;
+  img.onload=()=>{pv.style.display="block";movePreview(e);};
+  tryNext(); movePreview(e);
+}
+function movePreview(e){
+  const pv=$("#pv"); if(pv.style.display!=="block")return;
+  const w=236,h=268; let x=e.clientX+18,y=e.clientY+14;
+  if(x+w>window.innerWidth)x=e.clientX-w-18;
+  if(y+h>window.innerHeight)y=Math.max(8,window.innerHeight-h-8);
+  pv.style.left=x+"px"; pv.style.top=y+"px";
+}
+function hidePreview(){$("#pv").style.display="none";}
+function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1400); }
+async function copy() {
+  const s = text(); if (!s) { toast("고른 용어가 없습니다"); return; }
+  try { await navigator.clipboard.writeText(s); toast("복사했습니다"); }
+  catch (e) { const ta = document.createElement("textarea"); ta.value = s; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); toast("복사했습니다"); } catch (e2) { toast("복사 실패 — 직접 선택해 주세요"); } ta.remove(); }
+}
+function randomize() {
+  DATA.slots.forEach((slot, i) => {
+    if (i === 7 || i === 8) return;
+    const all = slot.groups.flatMap(g => g.terms);
+    state[i] = [all[Math.floor(Math.random() * all.length)][0]];
+  });
+  state[7] = ["no text", "no logo"]; state[8] = ["1:1"];
+  render();
+}
+function saveCombo() {
+  const s = text(); if (!s) { toast("고른 용어가 없습니다"); return; }
+  try {
+    const list = JSON.parse(localStorage.getItem("dial.saved") || "[]");
+    list.unshift({ t: s, d: new Date().toISOString().slice(0, 10) });
+    localStorage.setItem("dial.saved", JSON.stringify(list.slice(0, 30)));
+    toast("저장했습니다 (이 브라우저에만)");
+  } catch (e) { toast("저장할 수 없는 환경입니다"); }
+}
+function loadCombo() {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem("dial.saved") || "[]"); } catch (e) {}
+  if (!list.length) { toast("저장한 조합이 없습니다"); return; }
+  const s = list.map((x, i) => (i + 1) + ". " + x.t).join("\n\n");
+  const box = $("#prompt"); box.textContent = s;
+  toast("저장한 조합 " + list.length + "개 — 칸을 누르면 다시 편집 화면으로");
+}
+function csvRows() {
+  const rows = [["번호","주제","장면","스타일","카메라","조명","색","구도","제약","출력","프롬프트"]];
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem("dial.saved") || "[]"); } catch (e) {}
+  rows.push(["현재"].concat(DATA.slots.map((_, i) => state[i].join(" / "))).concat([text()]));
+  saved.forEach((x, i) => rows.push([String(i + 1)].concat(DATA.slots.map(() => "")).concat([x.t])));
+  return rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+}
+async function exportCsv() {
+  const csv = "\uFEFF" + csvRows();
+  const name = "prompt-dial_" + new Date().toISOString().slice(0, 10) + ".csv";
+  const dl = await (window.claude && claude.use ? claude.use("downloads") : Promise.resolve(null));
+  if (dl) {
+    try { await dl.save({ filename: name, data: csv }); toast("CSV를 저장했습니다"); return; }
+    catch (e) { if (e && e.code === "declined") { toast("저장을 취소했습니다"); return; } }
+  }
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    toast("CSV를 내려받았습니다");
+  } catch (e) { toast("이 환경에서는 저장할 수 없습니다"); }
+}
+function applyPreset(p) {
+  state[2] = [p.text];
+  if (!state[7].length) state[7] = ["no text", "no logo"];
+  if (!state[8].length) state[8] = ["1:1"];
+  render(); toast(p.name + " 조합을 스타일 칸에 넣었습니다");
+}
+function buildPresets() {
+  const host = $("#presets"); if (!host || !DATA.presets) return;
+  DATA.presets.forEach(p => {
+    const b = el("button", "gtab", p.name);
+    b.title = p.text;
+    b.onclick = () => applyPreset(p);
+    host.appendChild(b);
+  });
+}
+buildPresets();
+build(); render();
+$("#copy").onclick = copy; $("#copy2").onclick = copy;
+$("#rand").onclick = randomize;
+$("#clear").onclick = () => { state.forEach((_, i) => state[i] = []); render(); };
+$("#ko").onclick = (e) => { showKo = !showKo; e.target.textContent = showKo ? "한국어 뜻 숨기기" : "한국어 뜻 보이기"; render(); };
+$("#save").onclick = saveCombo; $("#load").onclick = loadCombo;
+$("#csv").onclick = exportCsv;
+document.querySelectorAll("#syntax .segb").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#syntax .segb").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); syntax = b.dataset.s; render();
+});
+["hex1","hex2","hex3"].forEach(id => $("#"+id).oninput = render);
+$("#hexOn").onchange = render;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("dial.theme", next); } catch (e) {}
+  render();
+};
+try { const t = localStorage.getItem("dial.theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+try {
+  const b = localStorage.getItem("dial.imgBase"); if (b) $("#imgBase").value = b;
+  const o = localStorage.getItem("dial.imgOn"); if (o !== null) $("#imgOn").checked = (o === "1");
+} catch (e) {}
+$("#imgBase").onchange = () => { try { localStorage.setItem("dial.imgBase", $("#imgBase").value.trim()); } catch (e) {} };
+$("#imgOn").onchange = () => { try { localStorage.setItem("dial.imgOn", $("#imgOn").checked ? "1" : "0"); } catch (e) {} if (!$("#imgOn").checked) hidePreview(); };
+if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render); } catch (e) {} }
+</script>
+</body>
+</html>
