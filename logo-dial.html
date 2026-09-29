@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>로고 프롬프트 제작기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F5F6F8; --panel:#FFFFFF; --ink:#16161A; --sub:#5C616E; --line:#E1E4EA; --soft:#F0F2F5;
+  --acc:#E8442E; --acc2:#2D6CDF; --chipbg:#FFF1EE; --code:#1B1D24; --codetx:#E6E8EE;
+}
+*,*::before,*::after{box-sizing:inherit}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101116;--panel:#181A21;--ink:#F2F3F6;--sub:#A0A6B4;--line:#2A2D36;--soft:#20232B;--chipbg:#2A2029;--acc2:#7FB0FF;--code:#0C0D11;--codetx:#E6E8EE;--outline:rgba(255,255,255,.34)}}
+:root[data-theme="dark"]{--bg:#101116;--panel:#181A21;--ink:#F2F3F6;--sub:#A0A6B4;--line:#2A2D36;--soft:#20232B;--chipbg:#2A2029;--acc2:#7FB0FF;--code:#0C0D11;--codetx:#E6E8EE;--outline:rgba(255,255,255,.34)}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px 64px}
+header h1{font-size:clamp(20px,3.4vw,30px);margin:6px 0 4px;letter-spacing:-.4px}
+header p{margin:0;color:var(--sub);font-size:14px}
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1.6px;color:var(--acc);font-weight:600}
+.topbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;font-size:13px}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+button.ghost{background:transparent}
+.out{position:sticky;top:0;z-index:5;margin:14px 0 18px;background:var(--code);border:1px solid var(--outline);border-radius:14px;padding:14px 16px;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.out .label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:1.4px;color:#8C93A6;margin-bottom:8px}
+#prompt{font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--codetx);white-space:pre-wrap;word-break:break-word;min-height:44px}
+#prompt .seg{border-radius:4px;padding:1px 2px}
+.outbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.count{color:#8C93A6;font-size:12px;font-family:"IBM Plex Mono",monospace;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.slot{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;display:flex;flex-direction:column}
+.slot h2{margin:0;font-size:15px;display:flex;align-items:center;gap:8px}
+.no{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:#fff;background:var(--ink);border-radius:6px;padding:2px 6px}
+.slot .desc{color:var(--sub);font-size:12px;margin:4px 0 8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:4px}
+.chip{background:var(--chipbg);border:1px solid var(--acc);color:var(--acc);border-radius:999px;padding:3px 9px;font-size:12px;display:inline-flex;gap:6px;align-items:center;cursor:pointer;font-family:"IBM Plex Mono",monospace}
+.chip b{font-weight:600}
+.chip span{opacity:.6}
+.search{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--ink);font-size:13px;margin-bottom:8px}
+.groups{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.gtab{font-size:11.5px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--sub)}
+.gtab.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:600}
+.list{max-height:240px;overflow-y:auto;border-top:1px solid var(--line);padding-top:6px}
+.item{display:flex;justify-content:space-between;gap:10px;padding:5px 6px;border-radius:7px;cursor:pointer;font-size:12.5px}
+.item:hover{background:var(--soft)}
+.item.on{background:var(--chipbg);outline:1px solid var(--acc)}
+.item.on .en{color:var(--ink);font-weight:600}
+.item .en{font-family:"IBM Plex Mono",monospace;color:var(--acc2)}
+.item .ko{color:var(--sub);font-size:11.5px;white-space:nowrap;align-self:flex-start}
+.item .use{color:var(--sub);font-size:10.8px;margin-top:1px;opacity:.85}
+.gnote{font-size:11px;color:var(--sub);margin:-2px 0 6px;line-height:1.45}
+.hint{color:var(--sub);font-size:11.5px;margin-top:6px}
+.note{margin-top:26px;color:var(--sub);font-size:12.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:14px}
+.note b{color:var(--ink)}
+.lbl{font-size:12px;color:var(--sub);font-weight:600}
+.seg-group{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.segb{border:none;border-radius:0;background:transparent;padding:7px 11px;font-size:12.5px;color:var(--sub)}
+.segb.on{background:var(--ink);color:var(--bg);font-weight:700}
+.hex{width:86px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.chk{font-size:12px;color:var(--sub);display:inline-flex;gap:5px;align-items:center}
+#pv{position:fixed;z-index:50;display:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 34px rgba(0,0,0,.28);pointer-events:none}
+#pv img{display:block;width:220px;height:220px;object-fit:cover;border-radius:8px;background:var(--soft)}
+#pv .cap{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--sub);padding:5px 4px 2px;max-width:220px;word-break:break-all}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .out{box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 10px 32px rgba(0,0,0,.6)}}
+:root[data-theme="dark"] .out{box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 10px 32px rgba(0,0,0,.6)}
+.freein{width:100%;min-height:74px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--ink);font-size:13px;font-family:inherit;resize:vertical;margin-bottom:8px}
+.exwrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+@media (max-width:640px){.list{max-height:190px}.out{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">로고 제작 실습용</div>
+    <h1>로고 프롬프트 제작기</h1>
+    <p>칸마다 하나씩 선택.</p>
+    <div class="topbar">
+      <button class="primary" id="copy">프롬프트 복사</button>
+      <button id="rand">무작위로 채우기</button>
+      <button id="clear">모두 지우기</button>
+      <button id="ko" class="ghost">한국어 뜻 숨기기</button>
+      <button id="theme" class="ghost">어둡게 / 밝게</button>
+    </div>
+    <div class="topbar" style="margin-top:8px">
+      <span class="lbl">쓰는 형식</span>
+      <div class="seg-group" id="syntax">
+        <button class="segb on" data-s="plain">문장형</button>
+        <button class="segb" data-s="mj">미드저니</button>
+        <button class="segb" data-s="json">구조형(JSON)</button>
+      </div>
+      <span class="lbl" style="margin-left:10px">브랜드 색</span>
+      <input class="hex" id="hex1" placeholder="#E8442E" maxlength="7">
+      <input class="hex" id="hex2" placeholder="#16161A" maxlength="7">
+      <input class="hex" id="hex3" placeholder="#F5F0E6" maxlength="7">
+      <label class="chk"><input type="checkbox" id="hexOn"> 색 칸 대신 이 코드 쓰기</label>
+    </div>
+    <div class="topbar" style="margin-top:8px">
+      <span class="lbl">샘플 이미지</span>
+      <input class="hex" id="imgBase" style="width:250px" value="" placeholder="images/  또는  https://내주소/samples/">
+      <label class="chk"><input type="checkbox" id="imgOn"> 용어에 마우스를 올리면 미리보기</label>
+      <span style="font-size:11.5px;color:var(--sub)">images/ 폴더에 로고 샘플을 넣으면 용어에 마우스를 올릴 때 보입니다</span>
+    </div>
+  </header>
+
+  <div class="topbar" style="margin-top:12px">
+    <span class="lbl">자주 쓰는 조합</span>
+    <span id="presets" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
+  </div>
+
+  <div class="out">
+    <div class="label">PROMPT · 복사해서 프롬프트에 붙여넣기</div>
+    <div id="prompt"></div>
+    <div class="outbar">
+      <button id="copy2" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">복사</button>
+      <button id="wipe" class="ghost" style="color:#FFB3AC;border-color:#5A3A38">삭제</button>
+      <button id="save" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">이 조합 저장</button>
+      <button id="load" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">저장한 조합</button>
+      <button id="csv" class="ghost" style="color:#E6E8EE;border-color:#3A3D48">CSV로 내보내기</button>
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="note">
+    <p><b>이름 칸</b> · 직접 입력. 한글 이름은 AI가 자주 틀리므로, 최종 글자는 그래픽 도구 활용 권장  </p>
+    <p><b>분위기</b> · 마지막 칸은 직접 입력. 여기에 적은 말은 프롬프트 맨 뒤에 <code>!</code>와 함께 입력. 생성형 AI에 따라 무시되기도 함</p>
+    <p><b>사용</b> · 로고 타입 · 모티프 · 표현 스타일 세 칸이 중요함. 여기에 결과물 형태와 필수 조건을 더하면 바로 쓸 수 있는 프롬프트가 된다. 나머지는 필요할 때만 넣자.</p>
+    <p style="margin-bottom:0">made by.kbs -  전체 용어 <span id="total"></span>개 · 2026.9 기준</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div id="pv"><img alt=""><div class="cap"></div></div>
+
+<script>
+const DATA = {"slots":[{"name":"업종","desc":"어떤 브랜드인가","count":40,"groups":[{"name":"업종","terms":[["for a specialty coffee roastery","스페셜티 로스터리","카페 · 식음료"],["for a neighborhood bakery","동네 베이커리","빵집 · 디저트"],["for a craft brewery","수제 맥주 양조장","주류 · 펍"],["for a farm-to-table restaurant","농장 직송 레스토랑","외식"],["for an organic grocery","유기농 식료품점","리테일"],["for a skincare brand","스킨케어 브랜드","뷰티"],["for a fashion label","패션 레이블","의류"],["for a furniture studio","가구 스튜디오","리빙 · 공예"],["for a ceramics workshop","도자 공방","공예"],["for a flower shop","플라워숍","소매"],["for a bookstore","서점","문화 소매"],["for a stationery brand","문구 브랜드","굿즈"],["for a fitness studio","피트니스 스튜디오","운동"],["for a yoga studio","요가 스튜디오","웰니스"],["for a pet care service","반려동물 서비스","펫"],["for a veterinary clinic","동물병원","의료"],["for a dental clinic","치과","의료"],["for a pediatric clinic","소아과","의료"],["for a law firm","법률사무소","전문 서비스"],["for an accounting firm","회계사무소","전문 서비스"],["for a real estate agency","부동산","중개"],["for a construction company","건설사","산업"],["for an architecture studio","건축 사무소","설계"],["for an interior design studio","인테리어 스튜디오","설계"],["for a design agency","디자인 에이전시","크리에이티브"],["for a photography studio","사진 스튜디오","크리에이티브"],["for a film production company","영상 제작사","미디어"],["for a music label","음악 레이블","미디어"],["for a game studio","게임 스튜디오","IT"],["for a software startup","소프트웨어 스타트업","IT"],["for a fintech company","핀테크","금융"],["for an AI research lab","AI 연구소","기술"],["for a logistics company","물류 회사","산업"],["for a renewable energy company","재생에너지 기업","산업"],["for an environmental NGO","환경 NGO","공공 · 비영리"],["for a public library","공공 도서관","공공"],["for a city festival","도시 축제","공공 · 이벤트"],["for a university club","대학 동아리","교육"],["for a children's education brand","아동 교육 브랜드","교육"],["for a travel agency","여행사","서비스"]]}]},{"name":"이름","desc":"직접 입력 · 브랜드 이름을 넣는다","count":0,"free":true,"prefix":"","hint":"따옴표 안에 넣으면 도구가 글자로 인식하기 쉽다. 한글은 오탈자가 잦으니 최종 글자는 디자인 도구에서 얹는 편이 안전하다.","ph":"예: with the brand name \"NOEUL\"","examples":[["with the brand name \"NOEUL\"","풀네임"],["with the initials \"N\"","앞 글자 한 자"],["with the initials \"NC\"","앞 글자 두 자"],["with the three-letter acronym \"NCR\"","약자 세 자"],["with the two-word name \"NOEUL COFFEE\"","두 단어"],["with the Korean brand name \"노을\"","한글 이름"],["with the name in Hangul \"노을\" and English \"NOEUL\"","국문·영문 병기"],["with a monogram of \"N\" and \"C\" merged","두 글자 합자"],["with no text, symbol only","이름 없이 심볼만"]],"groups":[]},{"name":"성격","desc":"브랜드의 톤","count":10,"groups":[{"name":"성격 · 톤","terms":[["trustworthy and established","신뢰감 있고 안정된","금융 · 의료 · 법률"],["friendly and approachable","친근하고 다가가기 쉬운","생활 · 교육 · 펫"],["premium and understated","고급스럽고 절제된","럭셔리 · 부티크"],["playful and energetic","경쾌하고 활기찬","어린이 · 스포츠 · 팝"],["warm and handmade","따뜻하고 손맛 있는","공예 · 로컬 · 베이커리"],["modern and technical","현대적이고 기술적인","IT · 스타트업"],["quiet and contemplative","고요하고 사색적인","문화 · 웰니스"],["bold and confident","대담하고 자신 있는","스포츠 · 캠페인"],["natural and sustainable","자연스럽고 지속가능한","친환경 · 유기농"],["heritage and traditional","전통과 역사가 있는","엠블럼 · 노포"]]}]},{"name":"로고 타입","desc":"무엇으로 만들어졌나","count":15,"groups":[{"name":"기본 7유형","terms":[["wordmark logo, the full brand name as the logo","워드마크","이름 전체를 서체로 · 이름이 짧을 때"],["lettermark logo, monogram of the initials","레터마크(모노그램)","이니셜로 압축 · 이름이 길 때"],["pictorial mark, a recognizable object icon","픽토리얼 마크","구체적 사물의 상징"],["abstract mark, a non-representational symbol","추상 마크","관념의 표현 · 업종 확장 유리"],["mascot logo, an illustrated character","마스코트","브랜드를 대표하는 캐릭터"],["combination mark, symbol next to the wordmark","결합 마크","심볼+글자 · 가장 안전한 만능형"],["emblem logo, the name inside a badge or seal","엠블럼","배지 안에 이름 · 전통과 신뢰"]]},{"name":"확장 유형","terms":[["crest, heraldic shield composition","크레스트(문장)","학교 · 클럽 · 헤리티지"],["dynamic logo system, multiple variations of one mark","동적 로고 시스템","상황마다 바뀌는 시스템"],["responsive logo, simplified versions for small sizes","반응형 로고","크기별 단순화 단계"],["stacked lockup, symbol above the wordmark","세로형 락업","정사각 공간용"],["horizontal lockup, symbol left of the wordmark","가로형 락업","헤더 · 명함용"],["icon-only brand mark for app and social","아이콘 전용","앱 아이콘 · 프로필"],["negative space mark with a hidden second image","네거티브 스페이스형","여백에 숨은 의미"],["letterform mark, a single stylized letter","레터폼 단일 문자","한 글자 심볼"]]}]},{"name":"결과물 형태","desc":"무엇을 뽑을 것인가","count":8,"groups":[{"name":"형태","terms":[["a single centered symbol on plain background","심볼 단독","벡터화 대상"],["a wordmark only, no symbol","워드마크 단독","서체 중심"],["a full lockup, symbol and wordmark together","전체 락업","기본 사용형"],["a logo grid of 12 variations","12안 그리드","발상 단계"],["a three-view sheet: horizontal, stacked, icon","3종 변형 시트","사용 규칙용"],["an app icon on a rounded square","앱 아이콘","모서리 둥근 사각"],["a logo on a business card mockup","명함 목업","시안 제시"],["a logo on a storefront sign mockup","간판 목업","공간 적용"]]}]},{"name":"모티프","desc":"무엇을 형상화하나","count":60,"groups":[{"name":"자연 · 생물","terms":[["a mountain ridge","산 능선","아웃도어 · 지역"],["a sunrise or sunset arc","일출·일몰 호","희망 · 시작"],["a wave","파도","바다 · 유동성"],["a leaf","잎","친환경 · 웰니스"],["a sprout","새싹","성장 · 시작"],["a tree","나무","안정 · 성장"],["a flower blossom","꽃","뷰티 · 플라워"],["a seed","씨앗","시작 · 잠재력"],["a bird in flight","나는 새","자유 · 배송"],["a fox","여우","영리함 · 캐릭터"],["a bear","곰","든든함 · 캐릭터"],["a cat","고양이","친근 · 펫"],["a dog","개","충직 · 펫"],["a whale","고래","규모 · 환경"],["a bee","벌","근면 · 협업"],["a butterfly","나비","변화 · 성장"],["a mountain and water together","산과 물","산수 · 지역"],["a moon phase","달의 모양","밤 · 주기"]]},{"name":"사물 · 도구","terms":[["a coffee bean","커피콩","카페"],["a cup with steam","김 나는 잔","음료"],["a bread loaf","빵 덩어리","베이커리"],["a chef's knife","주방칼","요리"],["a book","책","출판 · 교육"],["a pencil","연필","교육 · 디자인"],["a camera aperture","카메라 조리개","사진 · 영상"],["a house or roof","집 · 지붕","부동산 · 건축"],["a door or gate","문 · 관문","입구 · 전환"],["a key","열쇠","보안 · 해결"],["a compass","나침반","방향 · 여행"],["a shield","방패","보호 · 보안"],["a gear","톱니바퀴","산업 · 기술"],["a lightbulb","전구","아이디어"],["a thread and needle","실과 바늘","의류 · 공예"],["a hand","손","돌봄 · 수공예"],["a heart","하트","돌봄 · 의료"],["a paper plane","종이비행기","전달 · 시작"]]},{"name":"추상 · 기하","terms":[["two overlapping circles","겹친 두 원","연결 · 협업"],["an infinite loop","무한 루프","순환 · 지속"],["a spiral","나선","성장 · 확장"],["an upward arrow","상승 화살표","성장 · 성과"],["a network of connected nodes","연결된 노드망","네트워크 · AI"],["concentric circles","동심원","집중 · 파장"],["a triangle composition","삼각 구성","안정 · 방향"],["a hexagon","육각형","구조 · 기술"],["a rounded square container","둥근 사각 컨테이너","앱 아이콘"],["interlocking geometric shapes","맞물린 도형","결합 · 시스템"],["a continuous single-stroke path","한 획의 연속 경로","모노라인"],["a folded ribbon","접힌 리본","입체감 · 변화"],["a pixel grid","픽셀 격자","디지털"],["a soundwave","음파","음악 · 소리"],["a path or road","길","과정 · 안내"],["an eye","눈","관찰 · 미디어"]]},{"name":"문자 변형","terms":[["the letter formed by negative space","여백으로 만든 글자","네거티브 스페이스"],["two letters merged into one form","두 글자의 합자","모노그램"],["a letter built from geometric modules","모듈로 조립한 글자","시스템형"],["a letter with a cut or notch","절단·홈이 있는 글자","현대적"],["a ligature of the first two letters","앞 두 글자 리거처","세련"],["a letter enclosed in a circle","원 안의 글자","배지형"],["Hangul consonant as a symbol","한글 자음 심볼","한국 브랜드"],["a stylized ampersand","스타일화된 앰퍼샌드","조합 브랜드"]]}]},{"name":"표현 스타일","desc":"어떻게 그려졌나","count":35,"groups":[{"name":"미니멀 계열","terms":[["minimalist, as few elements as possible","미니멀","가장 널리 통하는 기본값"],["neo-minimal, clean lines with soft organic curves","네오 미니멀","미니멀에 온기를 더함"],["hyper-flat, solid shapes with no detail","하이퍼 플랫","극단적 단순화"],["geometric, precise circles squares and triangles","기하 구성","구조 · 신뢰"],["modular, built from repeating geometric units","모듈 조립","시스템 브랜드"],["negative space, a hidden second meaning","네거티브 스페이스","기억에 남는 장치"],["monoline, single uniform stroke weight","모노라인","단일 굵기의 선"],["line art, thin outline only","라인 아트","섬세 · 고급"],["continuous line, one unbroken stroke","한 획 드로잉","우아함"]]},{"name":"질감 · 손맛","terms":[["hand-drawn, slightly imperfect strokes","손그림","2026년의 주된 흐름"],["hand-lettered, custom letterforms","손글씨 레터링","빈티지 · 공예"],["brush stroke, calligraphic energy","붓글씨 획","동양적 · 즉흥"],["stamp or seal look, uneven ink","도장 · 씰 느낌","전통 · 수공"],["letterpress feel, deep impression","활판 인쇄 느낌","고급 인쇄물"],["woodcut style, carved marks","목판 느낌","헤리티지"],["textured with subtle grain","미세한 입자 질감","따뜻함"],["rough edges, organic outline","거친 가장자리","크래프트"]]},{"name":"시대 · 무드","terms":[["vintage badge, ornate border and muted palette","빈티지 배지","헤리티지 · 수제"],["retro 1970s, rounded groovy letterforms","70년대 레트로","친근 · 복고"],["1980s retro-futurism, chrome and neon","80년대 레트로퓨처","게임 · 음악"],["Y2K chrome, glossy metallic","Y2K 크롬","패션 · 청년"],["mid-century modern, simple textured shapes","미드센추리","따뜻한 현대"],["Swiss style, strict grid and sans-serif","스위스 스타일","명료 · 기관"],["Bauhaus, primary colors and basic shapes","바우하우스","교육 · 문화"],["Art Deco, symmetrical stepped geometry","아르데코","호텔 · 럭셔리"],["heraldic crest, shield and banner","헤럴딕 문장","학교 · 클럽"],["Korean traditional motif, dancheong or taegeuk pattern","한국 전통 모티프","공공 · 지역"]]},{"name":"디지털 표현","terms":[["soft gradient fading into the background","부드러운 그라디언트","앱 · 테크"],["gradient mesh, smooth color blend","그라디언트 메시","디지털 브랜드"],["liquid metal, molten chrome surface","액체 금속","트렌디 · 실험적"],["isometric, dimensional flatness","아이소메트릭","설명적 · 테크"],["3D render with soft studio light","3D 렌더","제품 · 앱 아이콘"],["glassmorphism, translucent frosted layers","글래스모피즘","UI 브랜드"],["duotone, two-color overlap","듀오톤","음악 · 미디어"],["pixel style, blocky digital form","픽셀 스타일","게임 · 레트로"]]}]},{"name":"형태 성질","desc":"형태 및 성질","count":18,"groups":[{"name":"기본 축","terms":[["geometric and precise","기하적이고 정확한","이성 · 기술"],["organic and flowing","유기적이고 흐르는","자연 · 생명"],["sharp angular corners","날카로운 각","속도 · 전문"],["soft rounded corners","둥근 모서리","친근 · 안전"],["perfectly symmetrical","완전 대칭","안정 · 권위"],["asymmetric and dynamic","비대칭 · 역동","현대 · 움직임"],["closed and contained form","닫힌 형태","보호 · 완결"],["open and expanding form","열린 형태","성장 · 확장"],["compact and dense","조밀한 구성","안정감"],["wide and horizontal","가로로 넓은","헤더 · 배너"]]},{"name":"구성 · 비례","terms":[["built on a circular grid","원형 격자 기반","정밀 제도"],["built on a square grid","사각 격자 기반","시스템"],["golden ratio proportions","황금비 비례","고전적 균형"],["equal optical weight between symbol and text","심볼과 글자의 시각적 균형","락업 설계"],["generous clear space around the mark","넉넉한 여백 규정","사용 규칙"],["single focal element","초점 하나","단순함"],["layered overlapping shapes","겹친 층","깊이 · 연결"],["one element rotated or mirrored","하나를 회전·반전","리듬"]]}]},{"name":"선과 획","desc":"선 스타일","count":14,"groups":[{"name":"굵기 · 대비","terms":[["uniform stroke weight throughout","일정한 획 굵기","모노라인"],["thick bold strokes","굵고 대담한 획","힘 · 원거리 가독"],["thin delicate strokes","가늘고 섬세한 획","고급 · 정밀"],["high contrast between thick and thin","굵기 대비가 큰","세리프 · 우아"],["consistent corner radius","일정한 모서리 반경","정돈"],["rounded stroke terminals","둥근 획 끝","부드러움"],["flat cut terminals","평평한 획 끝","단정"],["tapered strokes","끝이 가늘어지는 획","붓 느낌"]]},{"name":"면과 선","terms":[["solid filled shapes","면으로 채운 형태","가장 안전한 기본"],["outline only, no fill","선만, 채움 없음","가벼움"],["mix of filled and outlined parts","면과 선의 혼합","위계"],["cut gaps in the stroke","획에 끊긴 틈","현대적"],["uniform spacing between elements","균일한 요소 간격","정돈"],["optical corrections applied","시각 보정 적용","완성도"]]}]},{"name":"색","desc":"팔레트","count":16,"groups":[{"name":"색 수","terms":[["single color, solid black","단색 검정","기본 검증용"],["single brand color","단색 브랜드 컬러","가장 단순"],["two colors only","두 가지 색만","인쇄 · 굿즈 유리"],["three colors maximum","최대 세 가지 색","일반적 상한"],["monochrome with one accent","무채색 + 강조 1색","절제된 강조"],["black and white only","흑백만","필수 검증본"]]},{"name":"색 성격","terms":[["warm palette, amber and terracotta","난색 팔레트","음식 · 친근"],["cool palette, deep blue and teal","한색 팔레트","기술 · 신뢰"],["earthy natural tones","흙빛 자연 톤","친환경 · 공예"],["muted desaturated tones","탁하고 차분한 톤","고급 · 빈티지"],["vivid saturated colors","선명한 원색","어린이 · 스포츠"],["pastel soft tones","파스텔","웰니스 · 유아"],["deep jewel tones","보석 톤","럭셔리"],["neon accent on dark","어두운 바탕 네온","야간 · 음악"],["metallic gold accent","금색 포인트","헤리티지 · 럭셔리"],["exact palette #E8442E and #16161A","HEX 직접 지정","브랜드 색 고정"]]}]},{"name":"제약","desc":"빼야 할 것","count":9,"groups":[{"name":"금지","terms":[["no text, symbol only","글자 없이 심볼만","심볼 개발 단계"],["no gradients, flat solid fills only","그라디언트 금지","인쇄 · 벡터화"],["no photographic elements","사진 요소 금지","로고의 기본"],["no drop shadows or bevels","그림자 · 베벨 금지","평면 유지"],["no fine details that break at small sizes","미세 디테일 금지","축소 대비"],["no more than three colors","3색 초과 금지","인쇄 · 굿즈"],["avoid clichés like generic globes and swooshes","흔한 상투 금지","차별화"],["not resembling any existing trademark","기존 상표 회피","법적 안전"],["no realistic textures","사실적 질감 금지","단순화"]]}]},{"name":"필수 조건","desc":"반드시 충족할 것","count":6,"groups":[{"name":"작동 조건","terms":[["must work in one color","1색으로 작동할 것","필수 조건"],["must be legible at 16 pixels","16px에서 판독","파비콘 · 앱"],["must work on light and dark backgrounds","명·암 배경 모두","반전 대응"],["must be reproducible as a vector","벡터로 재현 가능","최종 납품"],["simple enough to be drawn from memory","기억해서 그릴 만큼 단순","기억성"],["clear silhouette without color","색 없이 실루엣만으로 구분","형태 우선"]]}]},{"name":"출력","desc":"결과 형식","count":13,"groups":[{"name":"형식 · 비율","terms":[["1:1 square, centered, plain white background","정사각 · 흰 배경","기본 시안"],["1:1 on a light neutral background","밝은 무채색 배경","제시용"],["16:9 presentation board","가로 발표 보드","시안 발표"],["4:5 vertical for social","세로 SNS","공유"],["transparent background","투명 배경","합성 · 적용"],["vector-style crisp edges","벡터풍 선명한 경계","정제 전 단계"],["high contrast, print ready","고대비 인쇄용","인쇄 시안"]]},{"name":"시안 구성","terms":[["12 variations in a 4x3 grid","4×3 그리드 12안","발상 단계"],["6 variations in a row","한 줄 6안","비교"],["one large centered mark","크게 한 개","정제 단계"],["three sizes side by side: 16px, 64px, 512px","크기 3단 비교","축소 검증"],["black version and white reversed version","흑백 · 반전 2종","검증"],["logo with clear space guides","여백 규정 가이드 표시","사용 규칙"]]}]},{"name":"분위기 강조","desc":"직접 입력 · 맨 뒤에 붙는다","count":0,"free":true,"examples":[["따뜻하고 손맛 있는 느낌","예시"],["고요하고 절제된 인상","예시"],["단단하고 신뢰감 있는 인상","예시"],["경쾌하고 어린이다운 분위기","예시"],["전통과 현대가 섞인 느낌","예시"],["밤의 네온 같은 분위기","예시"]],"groups":[]}],"total":244,"presets":[{"name":"카페 · 결합 마크","text":"combination mark, symbol next to the wordmark, for a specialty coffee roastery, a sunrise arc over a coffee bean, minimalist, geometric and precise, uniform stroke weight throughout, two colors only, no text inside the symbol, must work in one color, 1:1 square, centered, plain white background"},{"name":"IT · 추상 모노그램","text":"lettermark logo, monogram of the initials, with the initials \"NC\", for a software startup, a letter built from geometric modules, modular, built from repeating geometric units, sharp angular corners, single brand color, no gradients, flat solid fills only, must be legible at 16 pixels, 1:1 square, centered, plain white background"},{"name":"공방 · 엠블럼","text":"emblem logo, the name inside a badge or seal, for a ceramics workshop, a hand, vintage badge, ornate border and muted palette, hand-lettered, custom letterforms, perfectly symmetrical, single color, solid black, no gradients, 1:1 square, centered, plain white background"},{"name":"펫 · 마스코트","text":"mascot logo, an illustrated character, for a pet care service, a dog, hand-drawn, slightly imperfect strokes, soft rounded corners, warm palette, amber and terracotta, three colors maximum, simple enough to be drawn from memory, 1:1 square, centered, plain white background"},{"name":"친환경 · 네거티브 스페이스","text":"pictorial mark, a recognizable object icon, for an environmental NGO, a leaf, negative space, a hidden second meaning, geometric and precise, solid filled shapes, single brand color, no text, symbol only, must work in one color, 1:1 square, centered, plain white background"},{"name":"발상 12안 뽑기","text":"a logo grid of 12 variations, abstract mark, a non-representational symbol, minimalist, geometric and precise, single color, solid black, no text, symbol only, no gradients, flat solid fills only, 12 variations in a 4x3 grid, 1:1 square, plain white background"}]};
+const state = DATA.slots.map(() => []);
+const ui = DATA.slots.map(() => ({ q: "", g: 0 }));
+let showKo = true, syntax = "plain";
+const COLORS = ["#16161A","#5A6070","#8B5A2B","#7B4DFF","#5B45C9","#0E9B72","#2D6CDF","#0E8A8A","#5C6BC0","#E0475B","#8A8F9C","#C2571E","#1F8F4A","#B8860B"];
+const COLORS_DARK = ["#C9CEDA","#AEB4C2","#D9A97A","#B69BFF","#A99BFF","#3FD3A6","#7FB0FF","#5FD6D6","#9FAAF0","#FF8A80","#BFC4CE","#FFA866","#6FD99A","#FFD666"];
+function isDark(){const t=document.documentElement.getAttribute("data-theme");if(t)return t==="dark";return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;}
+const C_=(i)=>(isDark()?COLORS_DARK:COLORS)[i];
+
+const $ = (s, r) => (r || document).querySelector(s);
+const el = (t, c, txt) => { const e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; };
+
+function buildPrompt() {
+  const parts = [];
+  state.forEach((sel, i) => { sel.forEach(t => parts.push({ slot: i, text: t })); });
+  return parts;
+}
+function renderOut() { render(); }
+function render() {
+  const partsArr = parts();
+  const box = $("#prompt"); box.innerHTML = "";
+  if (!partsArr.length) { box.innerHTML = '<span style="color:#6B7080">왼쪽 칸에서 용어를 고르면 여기에 프롬프트가 만들어집니다.</span>'; }
+  else if (syntax === "plain") {
+    partsArr.forEach((p, i) => {
+      const sp = el("span", "seg", p.text + (i < partsArr.length - 1 ? ", " : ""));
+      sp.style.color = ["#FFFFFF","#D6DAE4","#E0C8A8","#C7B2FF","#B9ADFF","#7FE3C2","#9DC2FF","#7FE0E0","#B8C0F5","#FFA8A0","#C9CEDA","#FFC28A","#96E0B4","#FFD666"][p.slot];
+      box.appendChild(sp);
+    });
+  } else { box.textContent = text(); }
+  $("#count").textContent = partsArr.length + " / 14칸 중 " + state.filter(s => s.length).length + "칸 사용";
+  DATA.slots.forEach((_, i) => renderSlot(i));
+}
+function hexList() {
+  return ["hex1","hex2","hex3"].map(id => ($("#"+id).value||"").trim())
+    .filter(v => /^#?[0-9a-fA-F]{6}$/.test(v)).map(v => v.startsWith("#") ? v : "#"+v);
+}
+function parts() {
+  const ps = buildPrompt();
+  const hx = hexList();
+  if ($("#hexOn").checked && hx.length) {
+    const kept = ps.filter(p => p.slot !== 5);
+    const at = kept.findIndex(p => p.slot > 5);
+    const item = { slot: 5, text: "palette exactly " + hx.join(", ") };
+    if (at < 0) kept.push(item); else kept.splice(at, 0, item);
+    return kept;
+  }
+  return ps;
+}
+const RATIO = /^(\d{1,2}):(\d{1,2})$|^(2\.39):1$/;
+function text() {
+  const ps = parts();
+  if (!ps.length) return "";
+  if (syntax === "mj") {
+    const body = [], no = [], par = [];
+    ps.forEach(p => {
+      const t = p.text;
+      if (p.slot === 8 && RATIO.test(t)) { par.push("--ar " + t.replace(":", ":")); return; }
+      if (p.slot === 7 && /^no /i.test(t)) { no.push(t.replace(/^no\s+/i, "")); return; }
+      body.push(t);
+    });
+    if (no.length) par.push("--no " + no.join(", "));
+    return body.join(", ") + (par.length ? " " + par.join(" ") : "");
+  }
+  if (syntax === "json") {
+    const KEY = ["industry","name","tone","logo_type","deliverable","motif","style","form","stroke","color","avoid","requirements","output","mood"];
+    const o = {};
+    DATA.slots.forEach((s2, i) => {
+      const v = ps.filter(p => p.slot === i).map(p => p.text);
+      if (v.length) o[KEY[i]] = v.length === 1 ? v[0] : v;
+    });
+    return JSON.stringify(o, null, 2);
+  }
+  return ps.map(p => p.text).join(", ");
+}
+
+function renderSlot(i) {
+  const slot = DATA.slots[i], host = $("#slot" + i);
+  if (slot.free) { const ta = $("#free" + i); if (ta && !state[i].length && ta.value) ta.value = ""; return; }
+  const chips = $(".chips", host); chips.innerHTML = "";
+  state[i].forEach(t => {
+    const c = el("span", "chip"); const cc = C_(i); c.style.borderColor = cc; c.style.color = cc; c.style.background = "transparent";
+    const b = el("b", null, t); c.appendChild(b); c.appendChild(el("span", null, "✕"));
+    c.onclick = () => { state[i] = state[i].filter(x => x !== t); render(); };
+    chips.appendChild(c);
+  });
+  const tabs = $(".groups", host); tabs.innerHTML = "";
+  slot.groups.forEach((g, gi) => {
+    const b = el("button", "gtab" + (ui[i].g === gi ? " on" : ""), g.name + " " + g.terms.length);
+    b.onclick = () => { ui[i].g = gi; render(); };
+    tabs.appendChild(b);
+  });
+  const gn = $(".gnote", host);
+  const gobj = slot.groups[ui[i].g];
+  gn.textContent = (!ui[i].q && gobj && gobj.note) ? gobj.note : "";
+  const list = $(".list", host); list.innerHTML = "";
+  const q = ui[i].q.trim().toLowerCase();
+  let terms = q ? slot.groups.flatMap(g => g.terms) : slot.groups[ui[i].g].terms;
+  if (q) terms = terms.filter(t => (t[0] + " " + t[1]).toLowerCase().includes(q));
+  terms.slice(0, 400).forEach(t => {
+    const on = state[i].includes(t[0]);
+    const it = el("div", "item" + (on ? " on" : ""));
+    const left = el("div"); left.style.cssText = "min-width:0";
+    left.appendChild(el("div", "en", t[0]));
+    if (t[2]) { const u = el("div", "use", t[2]); left.appendChild(u); }
+    it.appendChild(left);
+    if (showKo) it.appendChild(el("span", "ko", t[1]));
+    it.onmouseenter = (e) => showPreview(e, t[0]);
+    it.onmousemove = movePreview;
+    it.onmouseleave = hidePreview;
+    it.onclick = () => {
+      if (on) state[i] = state[i].filter(x => x !== t[0]);
+      else state[i] = [t[0]];
+      render();
+    };
+    list.appendChild(it);
+  });
+  if (!terms.length) list.appendChild(el("div", "hint", "검색 결과가 없습니다."));
+}
+
+function build() {
+  const grid = $("#grid");
+  DATA.slots.forEach((slot, i) => {
+    const card = el("div", "slot"); card.id = "slot" + i;
+    const h = el("h2");
+    const no = el("span", "no", String(i + 1).padStart(2, "0")); no.style.background = C_(i); no.style.color = isDark() ? "#101116" : "#FFFFFF";
+    h.appendChild(no); h.appendChild(el("span", null, slot.name));
+    const cnt = el("span", null, slot.count + "개"); cnt.style.cssText = "margin-left:auto;font-size:11.5px;color:var(--sub);font-family:'IBM Plex Mono',monospace";
+    h.appendChild(cnt); card.appendChild(h);
+    card.appendChild(el("div", "desc", slot.desc));
+    card.appendChild(el("div", "chips"));
+    if (slot.free) {
+      const ta = el("textarea", "freein"); ta.id = "free" + i; ta.rows = slot.prefix === "" ? 2 : 3;
+      ta.placeholder = slot.ph || "원하는 분위기를 한국어나 영어로 적는다. 맨 앞에 ! 가 자동으로 붙는다.";
+      const pre = slot.prefix == null ? "!" : slot.prefix;
+      ta.oninput = (e) => {
+        const v = e.target.value.trim();
+        state[i] = v ? [pre + (pre ? v.replace(/^!+/, "") : v)] : [];
+        renderOut();
+      };
+      card.appendChild(ta);
+      const ex = el("div", "exwrap");
+      (slot.examples || []).forEach(x => {
+        const b = el("button", "gtab", x[1] || x[0]);
+        b.title = x[0];
+        b.onclick = () => { const t2 = $("#free" + i); t2.value = x[0]; state[i] = [(slot.prefix == null ? "!" : slot.prefix) + x[0]]; renderOut(); };
+        ex.appendChild(b);
+      });
+      card.appendChild(ex);
+      card.appendChild(el("div", "gnote", slot.hint || "이 칸의 내용은 프롬프트 맨 뒤에 ! 가 붙은 채로 입력됨. 강조하고 싶은 인상을 한 줄로 적는다."));
+      grid.appendChild(card); return;
+    }
+    const s = el("input", "search"); s.placeholder = slot.name + " 검색 (한글 · 영문)";
+    s.oninput = (e) => { ui[i].q = e.target.value; render(); };
+    card.appendChild(s);
+    card.appendChild(el("div", "groups"));
+    card.appendChild(el("div", "gnote"));
+    card.appendChild(el("div", "list"));
+    grid.appendChild(card);
+  });
+  $("#total").textContent = DATA.total.toLocaleString();
+}
+
+const slugify=(v)=>v.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+function imgBase(){const v=(($("#imgBase").value||"").trim())||"images/";return v.endsWith("/")?v:v+"/";}
+const THUMBS = {};
+function showPreview(e,term){
+  if(!$("#imgOn").checked)return;
+  const pv=$("#pv"), img=$("#pv img"), sl=slugify(term), base=imgBase();
+  $("#pv .cap").textContent=term;
+  const exts=[".jpg",".png",".jpeg",".webp"]; let k=0;
+  const useThumb=()=>{ if(THUMBS[sl]){ img.onerror=()=>{pv.style.display="none";}; img.src="data:image/jpeg;base64,"+THUMBS[sl]; } else { pv.style.display="none"; } };
+  const tryNext=()=>{ if(k>=exts.length){ useThumb(); return; } img.src=base+sl+exts[k++]; };
+  img.onload=()=>{pv.style.display="block";movePreview(e);};
+  img.onerror=tryNext;
+  if(base) tryNext(); else useThumb();
+  movePreview(e);
+}
+function movePreview(e){
+  const pv=$("#pv"); if(pv.style.display!=="block")return;
+  const w=236,h=268; let x=e.clientX+18,y=e.clientY+14;
+  if(x+w>window.innerWidth)x=e.clientX-w-18;
+  if(y+h>window.innerHeight)y=Math.max(8,window.innerHeight-h-8);
+  pv.style.left=x+"px"; pv.style.top=y+"px";
+}
+function hidePreview(){$("#pv").style.display="none";}
+function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1400); }
+async function copy() {
+  const s = text(); if (!s) { toast("고른 용어가 없습니다"); return; }
+  try { await navigator.clipboard.writeText(s); toast("복사했습니다"); }
+  catch (e) { const ta = document.createElement("textarea"); ta.value = s; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); toast("복사했습니다"); } catch (e2) { toast("복사하지 못했습니다. 직접 선택해 주세요"); } ta.remove(); }
+}
+function randomize() {
+  DATA.slots.forEach((slot, i) => {
+    if (i === 10 || i === 11 || i === 12 || slot.free) return;
+    const all = slot.groups.flatMap(g => g.terms);
+    state[i] = [all[Math.floor(Math.random() * all.length)][0]];
+  });
+  state[10] = ["no gradients, flat solid fills only"];
+  state[11] = ["must work in one color"];
+  state[12] = ["1:1 square, centered, plain white background"];
+  render();
+}
+function saveCombo() {
+  const s = text(); if (!s) { toast("고른 용어가 없습니다"); return; }
+  try {
+    const list = JSON.parse(localStorage.getItem("dial.saved") || "[]");
+    list.unshift({ t: s, d: new Date().toISOString().slice(0, 10) });
+    localStorage.setItem("dial.saved", JSON.stringify(list.slice(0, 30)));
+    toast("저장했습니다 (이 브라우저에만)");
+  } catch (e) { toast("저장할 수 없는 환경입니다"); }
+}
+function loadCombo() {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem("dial.saved") || "[]"); } catch (e) {}
+  if (!list.length) { toast("저장한 조합이 없습니다"); return; }
+  const s = list.map((x, i) => (i + 1) + ". " + x.t).join("\n\n");
+  const box = $("#prompt"); box.textContent = s;
+  toast("저장한 조합 " + list.length + "개입니다. 칸을 누르면 편집 화면으로 돌아갑니다");
+}
+function csvRows() {
+  const rows = [["번호","주제","장면","스타일","카메라","조명","색","구도","제약","출력","프롬프트"]];
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem("dial.saved") || "[]"); } catch (e) {}
+  rows.push(["현재"].concat(DATA.slots.map((_, i) => state[i].join(" / "))).concat([text()]));
+  saved.forEach((x, i) => rows.push([String(i + 1)].concat(DATA.slots.map(() => "")).concat([x.t])));
+  return rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(",")).join("\r\n");
+}
+async function exportCsv() {
+  const csv = "\uFEFF" + csvRows();
+  const name = "prompt-dial_" + new Date().toISOString().slice(0, 10) + ".csv";
+  const dl = await (window.claude && claude.use ? claude.use("downloads") : Promise.resolve(null));
+  if (dl) {
+    try { await dl.save({ filename: name, data: csv }); toast("CSV를 저장했습니다"); return; }
+    catch (e) { if (e && e.code === "declined") { toast("저장을 취소했습니다"); return; } }
+  }
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    toast("CSV를 내려받았습니다");
+  } catch (e) { toast("이 환경에서는 저장할 수 없습니다"); }
+}
+function applyPreset(p) {
+  state.forEach((_, i) => state[i] = []);
+  state[3] = [p.text];
+  render(); toast(p.name + " 조합을 넣었습니다");
+}
+function buildPresets() {
+  const host = $("#presets"); if (!host || !DATA.presets) return;
+  DATA.presets.forEach(p => {
+    const b = el("button", "gtab", p.name);
+    b.title = p.text;
+    b.onclick = () => applyPreset(p);
+    host.appendChild(b);
+  });
+}
+buildPresets();
+build(); render();
+$("#copy").onclick = copy; $("#copy2").onclick = copy;
+$("#rand").onclick = randomize;
+$("#clear").onclick = () => { state.forEach((_, i) => state[i] = []); DATA.slots.forEach((s2, i) => { if (s2.free) { const ta = $("#free" + i); if (ta) ta.value = ""; } }); render(); };
+$("#ko").onclick = (e) => { showKo = !showKo; e.target.textContent = showKo ? "한국어 뜻 숨기기" : "한국어 뜻 보이기"; render(); };
+$("#save").onclick = saveCombo; $("#load").onclick = loadCombo;
+$("#wipe").onclick = () => { state.forEach((_, i) => state[i] = []); DATA.slots.forEach((s2, i) => { if (s2.free) { const ta = $("#free" + i); if (ta) ta.value = ""; } }); render(); toast("프롬프트를 지웠습니다"); };
+$("#csv").onclick = exportCsv;
+document.querySelectorAll("#syntax .segb").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#syntax .segb").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); syntax = b.dataset.s; render();
+});
+["hex1","hex2","hex3"].forEach(id => $("#"+id).oninput = render);
+$("#hexOn").onchange = render;
+$("#theme").onclick = () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("dial.theme", next); } catch (e) {}
+  render();
+};
+try { const t = localStorage.getItem("dial.theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+try {
+  const b = localStorage.getItem("dial.imgBase"); if (b) $("#imgBase").value = b;
+  const o = localStorage.getItem("dial.imgOn"); if (o !== null) $("#imgOn").checked = (o === "1");
+} catch (e) {}
+$("#imgBase").onchange = () => { try { localStorage.setItem("dial.imgBase", $("#imgBase").value.trim()); } catch (e) {} };
+$("#imgOn").onchange = () => { try { localStorage.setItem("dial.imgOn", $("#imgOn").checked ? "1" : "0"); } catch (e) {} if (!$("#imgOn").checked) hidePreview(); };
+if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render); } catch (e) {} }
+</script>
+</body>
+</html>
